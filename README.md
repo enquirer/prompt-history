@@ -1,6 +1,6 @@
 # prompt-history [![NPM version](https://img.shields.io/npm/v/prompt-history.svg?style=flat)](https://www.npmjs.com/package/prompt-history) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history)  [![NPM total downloads](https://img.shields.io/npm/dt/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history)
 
-> Prompt plugin to allow keeping a history of answers that user's are able to choose from when hitting tab.
+> Prompt plugin to allow keeping a history of answers that users are able to choose from when hitting tab.
 
 ![prompt-history demo](https://raw.githubusercontent.com/enquirer/prompt-history/master/docs/demo.gif)
 
