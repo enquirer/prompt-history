@@ -26,10 +26,31 @@
     "terminal-paginator": "^0.2.1"
   },
   "devDependencies": {
+    "gulp-format-md": "^0.1.11",
     "prompt-base": "^0.6.0"
   },
   "keywords": [
     "history",
     "prompt"
-  ]
+  ],
+  "verb": {
+    "toc": false,
+    "layout": "common-minimal",
+    "tasks": [
+      "readme"
+    ],
+    "plugins": [
+      "gulp-format-md"
+    ],
+    "lint": {
+      "reflinks": true
+    },
+    "related": {
+      "list": []
+    },
+    "reflinks": [
+      "data-store",
+      "prompt-base"
+    ]
+  }
 }
