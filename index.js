@@ -10,13 +10,13 @@ var log = require('log-utils');
  * when hitting "tab".
  *
  * ```js
- * var Prompt = require('../');
+ * var Prompt = require('prompt-base');
  * var prompt = new Prompt({
  *   name: 'username',
  *   message: 'What is your username?'
  * });
  *
- * prompt.use(history({limit: 10, store: './tmp/history'}));
+ * prompt.use(history({limit: 10, store: 'my-username-prompt'}));
  *
  * prompt.ask(function(answer) {
  *   console.log('answer', answer);
