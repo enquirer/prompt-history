@@ -73,7 +73,7 @@ module.exports = function history(config) {
         return;
       }
       let answer = this.question.getAnswer(input);
-      let history = store.get('history') || [];
+      let history = store.get([this.name, 'history']) || [];
       let idx = history.indexOf(answer);
       if (idx !== -1) {
         history.splice(idx, 1);
@@ -84,7 +84,7 @@ module.exports = function history(config) {
         history.pop();
       }
 
-      store.set('history', history);
+      store.set([this.name, 'history'], history);
       return onSubmit.apply(this, arguments);
     });
 
@@ -93,7 +93,7 @@ module.exports = function history(config) {
       this.rl.line = this.rl.line.slice(0, -1);
       if (this.status !== 'tabbing') {
         let self = this;
-        let history = store.get('history');
+        let history = store.get([this.name, 'history']);
         if (!history || history.length === 0) {
           return this.render('No history for this question yet.');
         }
