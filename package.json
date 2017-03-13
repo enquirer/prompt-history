@@ -1,6 +1,6 @@
 {
   "name": "prompt-history",
-  "description": "Prompt plugin for keeping a history of answers allowing user's to select a previous answer.",
+  "description": "Prompt plugin to allow keeping a history of answers that user's are able to choose from when hitting tab.",
   "version": "0.1.0",
   "homepage": "https://github.com/enquirer/prompt-history",
   "author": "Brian Woodward (https://github.com/doowb)",
