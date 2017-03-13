@@ -10,8 +10,7 @@
   },
   "license": "MIT",
   "files": [
-    "index.js",
-    "LICENSE"
+    "index.js"
   ],
   "main": "index.js",
   "engines": {
@@ -20,10 +19,6 @@
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [
-    "history",
-    "prompt"
-  ],
   "dependencies": {
     "cli-cursor": "^2.1.0",
     "data-store": "^0.16.1",
@@ -32,5 +27,9 @@
   },
   "devDependencies": {
     "prompt-base": "^0.6.0"
-  }
+  },
+  "keywords": [
+    "history",
+    "prompt"
+  ]
 }
