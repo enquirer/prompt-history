@@ -98,7 +98,7 @@
     "no-unexpected-multiline": 2,
     "no-unneeded-ternary": [2, { "defaultAssignment": false }],
     "no-unreachable": 2,
-    "no-unused-vars": [2, { "vars": "all", "args": "none" }],
+    "no-unused-vars": [2, { "vars": "all", "args": "all" }],
     "no-useless-call": 0,
     "no-with": 2,
     "one-var": [0, { "initialized": "never" }],
