@@ -1,6 +1,6 @@
 {
   "name": "prompt-history",
-  "description": "Prompt plugin to allow keeping a history of answers that users are able to choose from when hitting tab.",
+  "description": "Tab through previous answer history.",
   "version": "0.1.2",
   "homepage": "https://github.com/enquirer/prompt-history",
   "author": "Brian Woodward (https://github.com/doowb)",
@@ -20,14 +20,12 @@
     "test": "mocha"
   },
   "dependencies": {
-    "cli-cursor": "^2.1.0",
-    "data-store": "^0.16.1",
-    "log-utils": "^0.2.1",
-    "terminal-paginator": "^0.2.1"
+    "data-store": "^1.0.0",
+    "extend-shallow": "^2.0.1"
   },
   "devDependencies": {
-    "gulp-format-md": "^0.1.11",
-    "prompt-base": "^0.6.0"
+    "prompt-base": "^3.0.3",
+    "gulp-format-md": "^0.1.12"
   },
   "keywords": [
     "history",
@@ -46,7 +44,12 @@
       "reflinks": true
     },
     "related": {
-      "list": []
+      "list": [
+        "enquirer",
+        "prompt-base",
+        "prompt-password",
+        "prompt-text"
+      ]
     },
     "reflinks": [
       "data-store",

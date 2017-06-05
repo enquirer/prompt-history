@@ -1,149 +1,92 @@
 'use strict';
 
-var Paginator = require('terminal-paginator');
 var DataStore = require('data-store');
-var cursor = require('cli-cursor');
-var log = require('log-utils');
+var extend = require('extend-shallow');
 
-/**
- * Prompt plugin to allow keeping a history of answers that user's are able to choose from
- * when hitting "tab".
- *
- * ```js
- * var Prompt = require('prompt-base');
- * var prompt = new Prompt({
- *   name: 'username',
- *   message: 'What is your username?'
- * });
- *
- * prompt.use(history({limit: 10, store: 'my-username-prompt'}));
- *
- * prompt.ask(function(answer) {
- *   console.log('answer', answer);
- * });
- * ```
- * @name history
- * @param  {Object} `config` Configuration for setting the [data-store][] and limit stored answers
- * @param  {String|Object} `config.store` Provide either the name of a [data-store][] to use or a [data-store][] instance that has already been setup.
- * @param  {Number} `config.limit` Limit the amount of answers stored in the history. Use 0 to specify unlimited. Defaults to 5.
- * @return {Function} Returns the plugin function that is passed to `prompt.user`
- * @api public
- */
-
-module.exports = function history(config) {
-  var opts = Object.assign({limit: 5}, config);
-  if (!opts.store) {
-    throw new Error('expected "store" to be a string or instance of data-store');
+module.exports = function(prompt, options) {
+  if (prompt.choices && prompt.choices.length) {
+    throw new Error('prompt-history can only be used with text input prompts');
   }
 
-  const store = typeof opts.store === 'string' ? new DataStore(opts.store) : opts.store;
+  var tab = prompt.actions.tab;
+  var opts = extend({historyLimit: Infinity}, prompt.options, options);
+  var store = opts.store || new DataStore(opts);
+  var name = opts.name;
+  var idx = -1;
+  var status;
 
-  return function plugin(prompt) {
-    let restore = function() {};
+  prompt.rl.input.on('keypress', function(val, key) {
+    if (prompt.status === 'tabbing' && val == null && key.name === 'escape') {
+      prompt.rl.input.write('\x1B[?25h');
+      prompt.status = status;
+      prompt.rl.line = '';
+    }
+  });
 
-    // override onKeypress to handle escaping when in tabbing mode
-    this.define('onKeypress', function(event) {
-      let self = this;
-      Promise.resolve(this.rl.line ? this.validate(this.rl.line) : true)
-        .then(function(state) {
-          if (event.key.name === 'tab') {
-            self.onTabKey(event);
-            return;
-          } else if (self.status === 'tabbing') {
-            if (event.key.name === 'escape') {
-              restore();
-              return;
-            }
-            self.move(event.key.name, event);
-            return;
-          }
-          self.render(state);
-        });
-    });
+  prompt.action('tab', function(pos, key) {
+    var history = arrayify(store.get(name));
+    var line = prompt.rl.line;
 
-    // override onSubmit to handle hitting "enter" when in tabbing mode
-    const onSubmit = this.onSubmit;
-    this.define('onSubmit', function(input) {
-      if (this.status === 'tabbing') {
-        this.answer = this.question.getAnswer();
-        if (!this.validate(this.answer)) {
-          return;
+    if (prompt.status !== 'tabbing' && line.trim() === '' && history.length) {
+      status = prompt.status;
+      prompt.status = 'tabbing';
+    }
+
+    if (prompt.status === 'tabbing') {
+      prompt.rl.input.write('\x1B[?25l');
+      prompt.rl.line = line.slice(0, -1);
+
+      var len = history.length;
+      if (len) {
+        if (key.shift === true) {
+          idx -= 1;
+        } else {
+          idx += 1;
         }
-        restore(this.answer);
-        return;
+        prompt.rl.line = history[mod(idx, len)].trim();
       }
-      let answer = this.question.getAnswer(input);
-      let history = store.get([this.name, 'history']) || [];
-      let idx = history.indexOf(answer);
+      return this.position(pos);
+    }
+
+    if (key.shift === true && prompt.rl.line.slice(-1) === '\t') {
+      prompt.rl.input.emit('keypress', '', {name: 'backspace'});
+      return this.position(pos);
+    }
+    return tab.apply(this, arguments);
+  });
+
+  prompt.on('answer', function(answer) {
+    if (isString(answer)) {
+      // unshift answer onto the history array to make the
+      // most recently used answers easier to tab to
+      var history = arrayify(store.get(name));
+      var val = answer.trim();
+      var idx = history.indexOf(val);
       if (idx !== -1) {
         history.splice(idx, 1);
       }
-
-      history.unshift(answer);
-      if (opts.limit && history.length > opts.limit) {
+      history.unshift(val);
+      if (opts.historyLimit < history.length) {
         history.pop();
       }
+      store.del(name, {force: true});
+      store.set(name, history);
+    }
+  });
 
-      store.set([this.name, 'history'], history);
-      return onSubmit.apply(this, arguments);
-    });
-
-    // override onTabkey to handle show a history of previous answers
-    this.define('onTabKey', function(event) {
-      this.rl.line = this.rl.line.slice(0, -1);
-      if (this.status !== 'tabbing') {
-        let self = this;
-        let history = store.get([this.name, 'history']);
-        if (!history || history.length === 0) {
-          return this.render('No history for this question yet.');
-        }
-
-        // capture current methods to allow restoring when escape is hit
-        const getAnswer = this.question.getAnswer;
-        const render = this.render;
-        restore = function(line) {
-          self.status = 'pending';
-          self.question.getAnswer = getAnswer;
-          self.define('render', render);
-          self.rl.line = line || self.rl.line;
-          cursor.show();
-          self.render();
-        };
-
-        // setup choices based on history
-        this.position = 0;
-        this.status = 'tabbing';
-        this.paginator = new Paginator(this.options.pageSize);
-        this.question.addChoices(history);
-        this.choices.options.symbol = '';
-        this.question.getAnswer = function() {
-          let choice = self.choices.getChoice(self.position);
-          if (choice) {
-            return choice.disabled ? false : choice.value;
-          }
-        };
-
-        this.define('render', function(state) {
-          let append = typeof state === 'string'
-            ? log.red('>> ') + state
-            : '';
-
-          let message = this.message;
-          if (this.status === 'answered') {
-            message += log.cyan(this.answer);
-          } else {
-            let str = this.choices.render(this.position);
-            message += '\n' + this.paginator.paginate(str, this.position);
-          }
-
-          this.ui.render(message, append);
-        });
-
-      } else {
-        this.move('down');
-      }
-      cursor.hide();
-      this.render();
-    });
-  };
+  return prompt;
 };
+
+function arrayify(val) {
+  var arr = val ? (Array.isArray(val) ? val : [val]) : [];
+  return arr.filter(isString);
+}
+
+function isString(val) {
+  return typeof val === 'string' && val.trim() !== '';
+}
+
+function mod(idx, len) {
+  var n = (idx % len + len) % len;
+  return n < 0 ? n + Math.abs(len) : n;
+}
