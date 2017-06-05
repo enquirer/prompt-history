@@ -1,59 +1,117 @@
-# prompt-history [![NPM version](https://img.shields.io/npm/v/prompt-history.svg?style=flat)](https://www.npmjs.com/package/prompt-history) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history)  [![NPM total downloads](https://img.shields.io/npm/dt/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history)
+# prompt-history [![NPM version](https://img.shields.io/npm/v/prompt-history.svg?style=flat)](https://www.npmjs.com/package/prompt-history) [![NPM monthly downloads](https://img.shields.io/npm/dm/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history) [![NPM total downloads](https://img.shields.io/npm/dt/prompt-history.svg?style=flat)](https://npmjs.org/package/prompt-history)
 
-> Prompt plugin to allow keeping a history of answers that users are able to choose from when hitting tab.
+> Tab through previous answer history.
 
-![prompt-history demo](https://raw.githubusercontent.com/enquirer/prompt-history/master/docs/demo.gif)
+![prompt-history example](https://raw.githubusercontent.com/enquirer/prompt-history/master/example.gif)
+
+### Next, tab through history
+
+![prompt-history tabbing example](https://raw.githubusercontent.com/enquirer/prompt-history/master/example-tabbing.gif)
+
+## Install
+
+Install with [npm](https://www.npmjs.com/):
+
+```sh
+$ npm install prompt-history
+```
 
 ## Usage
 
-Require the plugin in and register it with an input prompt like [prompt-base](https://github.com/enquirer/prompt-base).
+History can only be used with "text" prompts. This will not work with checkbox, list, radio prompts, etc.
 
 ```js
-var history = require('prompt-history');
 var Prompt = require('prompt-base');
-var prompt = new Prompt({name: 'color', message: 'What\'s your favorite color?'});
-prompt.use(history({store: 'my-color-prompt', limit: 3}));
+var history = require('prompt-history');
+
+// pass the prompt instance to "history()"
+var prompt = history(new Prompt({
+  name: 'number',
+  message: 'Favorite number?',
+}));
+
+prompt.run()
+  .then(function(answer) {
+    console.log({number: answer});
+  })
+  .catch(console.log)
 ```
 
-When a user presses the "tab" key, if there is a history already stored, they will be shown a list of previous answers to choose from. The user may press the "esc" key to cancel, or press the "enter" key to choose an answer. They will be able to modify the answer before submitting it.
+**How it works**
 
-```js
-prompt.ask(function(answer) {
-  console.log(answer);
-  prompt.close();
-});
-```
+* <kbd>tab</kbd>+<kbd>shift</kbd> to go through previous answers, starting with most recent
+* <kbd>tab</kbd>+<kbd>shift</kbd> to go in reverse
 
-## API
+## Options
 
-### [history](index.js#L33)
+### options.historyLimit
 
-Prompt plugin to allow keeping a history of answers that user's are able to choose from when hitting "tab".
+Limit the number of answers to persist in the history array.
 
-**Params**
+**Type**: `number`
 
-* `config` **{Object}**: Configuration for setting the [data-store](https://github.com/jonschlinkert/data-store) and limit stored answers
-* `config.store` **{String|Object}**: Provide either the name of a [data-store](https://github.com/jonschlinkert/data-store) to use or a [data-store](https://github.com/jonschlinkert/data-store) instance that has already been setup.
-* `config.limit` **{Number}**: Limit the amount of answers stored in the history. Use 0 to specify unlimited. Defaults to 5.
-* `returns` **{Function}**: Returns the plugin function that is passed to `prompt.user`
+**Default**: `Infinity`
 
 **Example**
 
 ```js
-var Prompt = require('prompt-base');
-var prompt = new Prompt({
-  name: 'username',
-  message: 'What is your username?'
-});
-
-prompt.use(history({limit: 10, store: 'my-username-prompt'}));
-
-prompt.ask(function(answer) {
-  console.log('answer', answer);
-});
+var prompt = history(new Prompt({
+  name: 'number',
+  message: 'Favorite number?',
+  historyLimit: 10
+}));
 ```
 
+### options.path
+
+Required: Customize the filepath for the persisted history store.
+
+**Type**: `string`
+
+**Default**: `~/.data-store/prompt-history.json`
+
+**Example**
+
+```js
+var path = require('path');
+var prompt = history(new Prompt({
+  name: 'number',
+  message: 'Favorite number?',
+  path: path.join(__dirname, 'custom-store-path.json')
+}));
+```
+
+### options.store
+
+Pass a custom instance of [data-store](https://github.com/jonschlinkert/data-store) for persisting answers.
+
+**Type**: `object`
+
+**Default**: instance of data-store
+
+**Example**
+
+```js
+var Store = require('data-store');
+var store = new Store('custom-name');
+
+var prompt = history(new Prompt({
+  name: 'number',
+  message: 'Favorite number?',
+  store: store
+}));
+```
+
+See [data-store](https://github.com/jonschlinkert/data-store) for all available features and options.
+
 ## About
+
+### Related projects
+
+* [enquirer](https://www.npmjs.com/package/enquirer): Intuitive, plugin-based prompt system for node.js. | [homepage](http://enquirer.io "Intuitive, plugin-based prompt system for node.js.")
+* [prompt-base](https://www.npmjs.com/package/prompt-base): Base prompt module used for creating custom prompts. | [homepage](https://github.com/enquirer/prompt-base "Base prompt module used for creating custom prompts.")
+* [prompt-password](https://www.npmjs.com/package/prompt-password): Password prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer](http://enquirer.io). | [homepage](https://github.com/enquirer/prompt-password "Password prompt. Can be used as a standalone prompt, or as a plugin for [Enquirer].")
+* [prompt-text](https://www.npmjs.com/package/prompt-text): Basic text input prompt. This can be used standalone, but it's also included in [enquirer… [more](https://github.com/enquirer/prompt-text) | [homepage](https://github.com/enquirer/prompt-text "Basic text input prompt. This can be used standalone, but it's also included in [enquirer] by default.")
 
 ### Contributing
 
@@ -83,4 +141,4 @@ Released under the [MIT License](LICENSE).
 
 ***
 
-_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.4.3, on March 13, 2017._
+_This file was generated by [verb-generate-readme](https://github.com/verbose/verb-generate-readme), v0.6.0, on June 04, 2017._
