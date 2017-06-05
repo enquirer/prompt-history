@@ -1,7 +1,7 @@
 {
   "name": "prompt-history",
   "description": "Tab through previous answer history.",
-  "version": "0.1.2",
+  "version": "1.0.0",
   "homepage": "https://github.com/enquirer/prompt-history",
   "author": "Brian Woodward (https://github.com/doowb)",
   "repository": "enquirer/prompt-history",
