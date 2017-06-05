@@ -2,11 +2,13 @@
 
 > Tab through previous answer history.
 
-![prompt-history example](https://raw.githubusercontent.com/enquirer/prompt-history/master/example.gif)
+**Persist answers**
 
-### Next, tab through history
+![prompt-history tabbing example](https://raw.githubusercontent.com/enquirer/prompt-history/master/docs/example-store.gif)
 
-![prompt-history tabbing example](https://raw.githubusercontent.com/enquirer/prompt-history/master/example-tabbing.gif)
+**Tab through answer history**
+
+![prompt-history tabbing example](https://raw.githubusercontent.com/enquirer/prompt-history/master/docs/example-tabbing.gif)
 
 ## Install
 
